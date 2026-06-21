@@ -1,0 +1,11 @@
+ollama
+requests
+pandas
+numpy
+scikit-learn
+pyyaml
+pillow
+tenacity
+tqdm
+google-genai
+python-dotenv
