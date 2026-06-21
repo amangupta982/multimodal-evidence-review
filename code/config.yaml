@@ -1,0 +1,56 @@
+# =====================================================================
+# config.yaml  —  single source of truth for models, paths, and limits
+# Nothing in src/ hardcodes a model name or magic constant; it reads here.
+# =====================================================================
+
+ollama:
+  backend: "groq"               # PRIMARY: Gemini cloud. Set "ollama" for the local reproducible fallback.
+  host: "http://localhost:11434"   # local Ollama REST API (offline)
+  vision_model: "qwen2.5vl:3b"     # verified tag (Ollama library); 3.2GB, fits 8GB M1
+  embed_model: "nomic-embed-text"  # verified tag; 274MB text embedder for few-shot retrieval
+  request_timeout_s: 180           # generous: 3B VLM on M1 CPU/GPU can be slow per image
+  temperature: 0.0                 # deterministic decoding for reproducible enum outputs
+  call_delay_s: 5                  # seconds between API calls; keeps Gemini free tier under RPM. Set 0 for local Ollama.
+
+# Cloud backend (used only when ollama.backend == "gemini").
+# Key comes from env var GEMINI_API_KEY (or GOOGLE_API_KEY) — never hardcode it.
+gemini:
+  vision_model: "gemini-2.5-flash-lite" # bump to gemini-3.5-flash if your key has it
+  text_model: "gemini-2.5-flash-lite"
+  embed_model: "gemini-embedding-001"
+  temperature: 0.0
+
+# Groq cloud (used when ollama.backend == "groq"). Free, fast, no card.
+# Key from env GROQ_API_KEY. Embeddings fall back to local Ollama automatically.
+groq:
+  vision_model: "meta-llama/llama-4-scout-17b-16e-instruct"
+  text_model: "meta-llama/llama-4-scout-17b-16e-instruct"
+  temperature: 0.0
+
+# Retry/backoff around local calls (Phase 4). Local has no rate limits, but the
+# server can be briefly busy / a call can transiently fail — so we still retry.
+retry:
+  max_attempts: 4
+  initial_backoff_s: 1.0
+  backoff_multiplier: 2.0
+
+# Image preprocessing — cap long side to control VLM token cost & memory on 8GB.
+image:
+  max_long_side_px: 768           # downscale very large images before sending
+  jpeg_quality: 90
+
+# Dataset layout. Paths in the CSVs look like "images/test/case_001/img_1.jpg",
+# so they resolve relative to `dataset_root`.
+paths:
+  dataset_root: "../dataset"
+  sample_claims: "../dataset/sample_claims.csv"
+  test_claims: "../dataset/claims.csv"     # confirmed name in repo; overridable via CLI
+  user_history: "../dataset/user_history.csv"
+  evidence_requirements: "../dataset/evidence_requirements.csv"
+  vision_cache: "cache/vision_cache.json"  # dedup + cache: each image analyzed once
+  embed_cache: "cache/embed_cache.json"    # cached few-shot embeddings (computed once)
+
+# Few-shot retrieval (Phase 3)
+retrieval:
+  embed_backend: "ollama"   # embeddings run locally (free) even when backend=gemini; set "same" to use Gemini
+  k: 3                              # exemplars injected into fusion {retrieved_examples}
