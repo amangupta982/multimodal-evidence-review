@@ -1,0 +1,11 @@
+{
+  "vision_calls": 67,
+  "fusion_calls": 36,
+  "embed_calls": 36,
+  "prompt_tokens": 168855,
+  "output_tokens": 15445,
+  "total_tokens": 184300,
+  "images_processed_unique": 67,
+  "vision_cache_hits": 0,
+  "total_latency_s": 127.1
+}
