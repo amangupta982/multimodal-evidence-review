@@ -1,0 +1,26 @@
+# secrets
+.env
+**/.env
+
+# python
+.venv/
+**/__pycache__/
+*.pyc
+
+# runtime artifacts
+**/cache/
+**/run.log
+code/evaluation/predictions_sample.csv
+code/evaluation/test_tally.json
+
+# hackathon data (not ours to redistribute)
+dataset/
+
+# submission artifacts (not source)
+code.zip
+output.csv
+output_GOOD.csv
+chat_transcript.txt
+log.txt
+.DS_Store
+**/.DS_Store
